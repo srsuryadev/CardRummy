@@ -1,30 +1,25 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Deck {
+public abstract class Deck {
 	
-	ArrayList<Cards> deck;
+	ArrayList<Card> deck;
 	int size;
 	int index_1,index_2;
-	Cards temp;
+	Card temp;
 	
 	Deck(){
-		for(int i = 0; i < 4; i++){
-			for(int j = 0;j < 13; j++){
-				Cards c = new Cards(i, j);
-				deck.add(c);
-			}
-		}
-		size = deck.size() - 1;
+		deck = new ArrayList<Card>();
 	}
 	
 	public void shuffle(){
 		Random genRand = new Random();
+		int size = deck.size();
 		for(int i = 0; i < 100; i++){
             index_1 = genRand.nextInt( size );
             index_2 = genRand.nextInt( size );
 
-            temp = (Cards) deck.get( index_2 );
+            temp = (Card) deck.get( index_2 );
             deck.set( index_2 , deck.get( index_1 ) );
             deck.set( index_1, temp );
 		}
@@ -34,7 +29,13 @@ public class Deck {
 		return deck.size()-1;
 	}
 	
-	public Cards drawCard(){
+	public void display(){
+		for(int j = 0; j < deck.size() ; j++){
+			deck.get(j).display();
+			}
+	}
+	
+	public Card drawCard(){
 		return deck.remove(deck.size()-1);
 	}
 
