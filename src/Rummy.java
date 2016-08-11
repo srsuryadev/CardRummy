@@ -12,6 +12,11 @@ public class Rummy {
 	public HashMap<Integer, List<Integer> > hmSuitFace;
 	public HashMap<Integer, List<Integer> > hmFaceSuit;
 	
+	public Rummy(){
+		hmSuitFace = new HashMap<Integer, List<Integer>>();
+		hmFaceSuit = new HashMap<Integer, List<Integer>>();
+	}
+	
 	public static void main(String[] args){
 		Deck deck;
 		System.out.println("Enter the number of players");
@@ -29,7 +34,8 @@ public class Rummy {
 	}
 	
 	public boolean populateHashSF(List<Card> cards){
-		for(Card c: cards){
+		for(int i = 0; i<cards.size(); i++){
+			Card c = cards.get(i);
 			List<Integer> f = new ArrayList<Integer>();
 			if(hmSuitFace.containsKey(c.getsuite())){
 				f = hmSuitFace.get(c.getsuite());
@@ -54,8 +60,41 @@ public class Rummy {
 	
 	public List< List<Card> > getAllSequence(List<Card> cards){
 		List< List<Card> > result = new ArrayList< List<Card>>();
+		System.out.println("THE LIST SIZE"+ cards.size());
 		this.populateHashSF(cards);
 		for (Map.Entry<Integer, List<Integer> > entry : hmSuitFace.entrySet()) {
+			List<Integer> list = null;
+			list = entry.getValue();
+			System.out.println("SIZE OF THE LIST::"+list.size());
+			if(list.size() !=0){
+				Collections.sort(list);
+				System.out.println("LIST::"+list);
+				for(int i = 0; i < list.size() ; i++){
+					List<Card> lst = new ArrayList<Card>();
+					lst.add(new Card(entry.getKey(),list.get(i)));
+					for(int j = i+1; j<list.size();j++){
+						System.out.println("PRINT THE SEQ::"+ lst);
+						result.add(lst);
+						lst.add(new Card(entry.getKey(),list.get(j)));
+					}
+				}
+			}
+		}
+		for(int i =0;i<result.size(); i++){
+			System.out.println("LIST OF THE RESULT:");
+			System.out.println(result.get(i));
+			for(int j =0; j<result.get(i).size(); j++){
+				result.get(i).get(j).display();
+			}
+			System.out.println("+++++++++++++++++++++++++");
+		}
+		return result;
+	}
+	
+	public List< List<Card> > getAllGroup(List<Card> cards){
+		List< List<Card> > result = new ArrayList< List<Card>>();
+		this.populateHashFS(cards);
+		for (Map.Entry<Integer, List<Integer> > entry : hmFaceSuit.entrySet()) {
 			List<Integer> list = null;
 			if((list = entry.getValue()).size() !=0){
 				Collections.sort(list);
@@ -64,7 +103,7 @@ public class Rummy {
 					lst.add(new Card(entry.getKey(),list.get(i)));
 					for(int j = i+1; j<list.size();j++){
 						result.add(lst);
-						lst.add(new Card(entry.getKey(),list.get(j)));
+						lst.add(new Card(list.get(j),entry.getKey()));
 					}
 				}
 			}
@@ -72,11 +111,22 @@ public class Rummy {
 		return result;
 	}
 
-	
 	public boolean isRummyHand(List<Card> cards){
 		
-				
-		return true;
+		if(cards.isEmpty()) return true;
+		List< List<Card>> allSeq = this.getAllSequence(cards);
+		allSeq.addAll(this.getAllGroup(cards));
+		List<Card> copy = null;
+		System.out.println("IS RUMMY");
+		for(int i = 0; i<allSeq.size(); i++){
+			List<Card> seq = allSeq.get(i);
+			copy = new ArrayList(cards);
+			if(cards.containsAll(seq)&&seq.size()>=3){
+				copy.removeAll(seq);
+				if(isRummyHand(copy)) return true;
+			}
+		}
+		return false;
 	}
 	
 	public static Hand[] distrubuteCards(Deck deck,int n){
