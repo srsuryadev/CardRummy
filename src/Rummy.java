@@ -1,53 +1,96 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
+
+
 public class Rummy {
+	
+	public HashMap<Integer, List<Integer> > hmSuitFace;
+	public HashMap<Integer, List<Integer> > hmFaceSuit;
 	
 	public static void main(String[] args){
 		Deck deck;
 		System.out.println("Enter the number of players");
 		Scanner s = new Scanner(System.in);
 		int n = s.nextInt();
-//		deck = new Deck();
 		System.out.println("Enter type of packs:\n1.with joker\n2.without joker:");
 		int ptype = s.nextInt();
 		int pnum = 1;
 		switch(ptype){
 		case 1: 
-			deck = new Deck(pnum, 1);
+			deck = new DeckWithJoker(pnum, 1);
 			deck.display();
 			break;
-		case 2:
-			deck = new Deck(pnum, 0);
-			deck.display();
-			break;
-		}
-		
-		
-		
-//		Hands[] hand = new Hands[n];
-//		
-//		hand = distrubuteCards(deck,n);
-//		
-//		for(int i = 0; i < n; i++){
-//			hand[i].sortSuite();
-//		}
-//		checkHands(hand[0]);
-		
+		}		
 	}
 	
-	public static Hands[] distrubuteCards(Deck deck,int n){
-		deck.shuffle();
-		Hands[] hand = new Hands[n];
+	public boolean populateHashSF(List<Card> cards){
+		for(Card c: cards){
+			List<Integer> f = new ArrayList<Integer>();
+			if(hmSuitFace.containsKey(c.getsuite())){
+				f = hmSuitFace.get(c.getsuite());
+			}
+			f.add(c.getrank());
+			hmSuitFace.put(c.getsuite(), f);
+		}
+		return true;
+	}
+	
+	public boolean populateHashFS(List<Card> cards){
+		for(Card c: cards){
+			List<Integer> s = new ArrayList<Integer>();
+			if(hmFaceSuit.containsKey(c.getrank())){
+				s = hmFaceSuit.get(c.getrank());
+			}
+			s.add(c.getsuite());
+			hmFaceSuit.put(c.getrank(), s);
+		}
+		return true;
+	}
+	
+	public List< List<Card> > getAllSequence(List<Card> cards){
+		List< List<Card> > result = new ArrayList< List<Card>>();
+		this.populateHashSF(cards);
+		for (Map.Entry<Integer, List<Integer> > entry : hmSuitFace.entrySet()) {
+			List<Integer> list = null;
+			if((list = entry.getValue()).size() !=0){
+				Collections.sort(list);
+				for(int i = 0; i < list.size() ; i++){
+					List<Card> lst = new ArrayList<Card>();
+					lst.add(new Card(entry.getKey(),list.get(i)));
+					for(int j = i+1; j<list.size();j++){
+						result.add(lst);
+						lst.add(new Card(entry.getKey(),list.get(j)));
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	
+	public boolean isRummyHand(List<Card> cards){
 		
+				
+		return true;
+	}
+	
+	public static Hand[] distrubuteCards(Deck deck,int n){
+		deck.shuffle();
+		Hand[] hands = new Hand[n];
 		for(int i =0;i< n ;i++){
-			hand[i] = new Hands();
+			hands[i] = new Hand();
 		}
 		for(int i = 0 ; i < 13 ; i++){
 			for(int j = 0 ; j < n ; j++){
-				hand[j].cards.add(deck.drawCard());
+				hands[j].cards.add(deck.drawCard());
 			}
 		}
-		return hand;
+		return hands;
 	}
 	
 	public boolean checkHands(Hands hand){
@@ -56,10 +99,23 @@ public class Rummy {
 		return result;
 	}
 	
+	public static boolean checkNKind(Hand hand, int n){
+		hand.sortRank();
+		int count = 0;
+		for(int j = 0; j < hand.cards.size()-1 ; j++){
+			int r = hand.cards.get(j).getrank();
+			int nextr = hand.cards.get(j+1).getrank();
+			if(r==-1||(r == nextr)|| nextr ==-1){
+				count++;
+			}
+		}
+		if(count == n)
+			return true;
+		return false;			
+	}
 	
-	public int checkSeq(Hands hand){
-		Hands h = new Hands();
-		
+	public int checkSeq(Hand hand){
+		Hand h = new Hand();
 		int numSeq = 0;
 		for(int i = 0; i < 4; i++){
 			int seqCount = 0;
@@ -80,3 +136,5 @@ public class Rummy {
 		return numSeq;
 	}
 }
+
+	
