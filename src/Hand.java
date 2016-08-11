@@ -1,10 +1,15 @@
 import java.util.ArrayList;
+import java.util.List;
 
 public class Hand{
 	ArrayList<Card> cards;
 	
 	Hand(){
 		cards = new ArrayList<Card>();
+	}
+	
+	Hand(List<Card> lst){
+		cards = (ArrayList<Card>) lst;
 	}
 	
 	public void sortSuite(){
